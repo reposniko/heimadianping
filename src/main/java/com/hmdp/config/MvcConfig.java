@@ -1,6 +1,7 @@
 package com.hmdp.config;
 
 import com.hmdp.utils.LoginInterceptor;
+import com.hmdp.utils.RefreshTokenInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -14,7 +15,12 @@ public class MvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-       registry.addInterceptor(new LoginInterceptor(stringRedisTemplate)).
+        //
+        registry.addInterceptor(new RefreshTokenInterceptor(stringRedisTemplate)).order(0);
+
+
+        //登录拦截器
+        registry.addInterceptor(new LoginInterceptor()).
                excludePathPatterns(
                        "/shop/**", //** 全部放行
                        "/blog/hot",
@@ -23,6 +29,9 @@ public class MvcConfig implements WebMvcConfigurer {
                        "/upload/**",
                        "/user/code",
                        "/user/login"
-               );
+               ).order(1);
+
+
+
     }
 }

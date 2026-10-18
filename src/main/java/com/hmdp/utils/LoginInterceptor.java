@@ -15,49 +15,14 @@ import java.util.concurrent.TimeUnit;
 
 
 public class LoginInterceptor implements HandlerInterceptor {
-    private  StringRedisTemplate stringRedisTemplate;
-
-    public  LoginInterceptor(StringRedisTemplate stringRedisTemplate){
-        this.stringRedisTemplate = stringRedisTemplate;
-    }
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        // 这里无法用Autowired注入是因为这个类没有交给IOC管理，无法创建Bean
-        //1.获取请求头中的token
-        String token = request.getHeader("authorization");
-        if(StrUtil.isBlank(token)){
+        //判断是否需要拦截(Threadlocal)中是否有用户
+        if(UserHolder.getUser() == null){
             response.setStatus(401);
             return false;
         }
-
-        //2.获取token中的用户
-        String key = RedisConstants.LOGIN_USER_KEY + token;
-        Map<Object,Object> userMap = stringRedisTemplate.opsForHash()
-                .entries(RedisConstants.LOGIN_USER_KEY + token);
-        //判断用户是否存在
-        //将查询到的map转为user
-        if(userMap.isEmpty()){
-            response.setStatus(401);
-            return false;
-        }
-        UserDTO userDTO = BeanUtil.fillBeanWithMap(userMap,new UserDTO(),false);
-
-        //存在
-        UserHolder.saveUser(userDTO);
-        //TODO:: 刷新token有效期
-        stringRedisTemplate.expire(key,RedisConstants.LOGIN_USER_TTL, TimeUnit.SECONDS);
-        //保存用户信息
-
-
-
         return true;
-
     }
 
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) throws Exception {
-        UserHolder.removeUser();
-        HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
-    }
 }

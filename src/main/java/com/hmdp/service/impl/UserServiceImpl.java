@@ -82,7 +82,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         //7.2将User转储为hash存储
         UserDTO userDTO = BeanUtil.copyProperties(user , UserDTO.class);
         //7.3存储
-
         Map<String,Object> userMap = BeanUtil.beanToMap(userDTO, new HashMap<>(), CopyOptions.create().setIgnoreNullValue(true)
                 .setFieldValueEditor((fieldName, fieldValue) -> fieldValue.toString()));
         String tokenkey = LOGIN_USER_KEY + token;
