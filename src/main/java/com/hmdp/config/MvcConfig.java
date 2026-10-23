@@ -28,7 +28,8 @@ public class MvcConfig implements WebMvcConfigurer {
                        "shop-type/**",
                        "/upload/**",
                        "/user/code",
-                       "/user/login"
+                       "/user/login",
+                       "/error"
                ).order(1);
 
 
